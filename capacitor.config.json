@@ -1,0 +1,7 @@
+{
+  "appId": "com.payal.sadhya",
+  "appName": "Sadhya",
+  "webDir": "www",
+  "backgroundColor": "#FFF1F6",
+  "android": { "allowMixedContent": false }
+}

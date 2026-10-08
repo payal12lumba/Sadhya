@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Placement Pipeline</title>
+<title>Sadhya</title>
+<meta name="description" content="Sadhya: day-wise placement prep tracker">
+<meta name="theme-color" content="#FF8DBE">
+<meta name="application-name" content="Sadhya">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sadhya">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -54,6 +65,10 @@ input,select{font:inherit;color:inherit}
 .nav-btn:hover{background:var(--surface-2);color:var(--ink)}
 .nav-btn[aria-current="page"]{background:var(--grad);color:#fff;box-shadow:var(--glow)}
 .nav-btn .badge{margin-left:auto;background:var(--late);color:#fff;box-shadow:0 0 0 2px #fff;font-size:11px;font-weight:700;border-radius:99px;padding:1px 7px}
+.install-btn[hidden]{display:none}
+.install-btn{margin-top:auto;border:1.5px dashed var(--concept);color:var(--concept)}
+.install-btn:hover{background:var(--concept-soft);color:var(--concept)}
+.install-btn:not([hidden]) + .rail-foot{margin-top:10px}
 .rail-foot{margin-top:auto;padding:16px 14px;border-radius:var(--r-lg);background:var(--concept-soft)}
 .rail-foot .lbl{font-size:12px;color:var(--muted)}
 .rail-foot .big{font-family:var(--display);font-size:30px;font-weight:700;line-height:1.1}
@@ -268,7 +283,7 @@ main{min-width:0;padding:28px clamp(16px,4vw,48px) 96px;max-width:1180px;width:1
 @media (max-width:780px){
   .app{grid-template-columns:1fr}
   .rail{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--line);z-index:10;gap:0}
-  .brand,.rail-foot{display:none}
+  .brand,.rail-foot,.install-btn{display:none!important}
   .nav-btn{flex-direction:column;gap:3px;font-size:11px;padding:7px 10px;position:relative}
   .nav-btn .badge{position:absolute;top:2px;right:6px;margin:0}
   main{padding-bottom:110px}
@@ -290,11 +305,12 @@ main{min-width:0;padding:28px clamp(16px,4vw,48px) 96px;max-width:1180px;width:1
 <div class="motifs" aria-hidden="true"><i class="m1"></i><i class="m2"></i><i class="m3"></i></div>
 <div class="app">
   <nav class="rail" aria-label="Main">
-    <div class="brand"><div class="brand-mark"><svg class="ico" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="currentColor" stroke="none"/></svg></div><div><b>Placement Pipeline</b><small>9 – 30 Oct 2026</small></div></div>
+    <div class="brand"><div class="brand-mark"><svg class="ico" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="currentColor" stroke="none"/></svg></div><div><b>Sadhya</b><small>Placement prep, 9 – 30 Oct</small></div></div>
     <button class="nav-btn" data-view="day"></button>
     <button class="nav-btn" data-view="plan"></button>
     <button class="nav-btn" data-view="insights"></button>
     <button class="nav-btn" data-view="settings"></button>
+    <button class="nav-btn install-btn" id="installRail" hidden></button>
     <div class="rail-foot" id="railFoot"></div>
   </nav>
   <main id="main"></main>
@@ -412,7 +428,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":
 function renderNav(){
   const late = lateTopics().length;
   const items = {day:["today","Today"], plan:["list","Plan"], insights:["chart","Insights"], settings:["sliders","Settings"]};
-  document.querySelectorAll(".nav-btn").forEach(b => {
+  document.querySelectorAll(".nav-btn[data-view]").forEach(b => {
     const [i, l] = items[b.dataset.view];
     b.innerHTML = ic(i) + `<span>${l}</span>` + (b.dataset.view === "day" && late ? `<span class="badge num">${late}</span>` : "");
     b.toggleAttribute("aria-current", false);
@@ -658,23 +674,49 @@ function viewInsights(){
   </div>`;
 }
 
+const INSTALL = {prompt:null, installed: matchMedia("(display-mode: standalone)").matches || navigator.standalone === true || !!window.Capacitor};
+function installHelp(){
+  if (INSTALL.installed) return "You're using the installed app. It opens in its own window with the Sadhya icon.";
+  if (INSTALL.prompt) return "Add it to your home screen or desktop as a standalone app with its own icon. It works offline too.";
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (ios) return "In Safari, tap the Share button, then Add to Home Screen.";
+  return "Open this page in Chrome or Edge and use Install app from the browser menu. On Android, you can also install the APK from the GitHub release.";
+}
+async function doInstall(){
+  if (!INSTALL.prompt) return;
+  INSTALL.prompt.prompt();
+  const r = await INSTALL.prompt.userChoice; INSTALL.prompt = null;
+  if (r.outcome === "accepted") { INSTALL.installed = true; toast("Sadhya installed"); }
+  render(true);
+}
+function renderInstallRail(){
+  const b = document.getElementById("installRail"); if (!b) return;
+  b.hidden = !INSTALL.prompt; b.innerHTML = ic("download") + "<span>Install app</span>";
+}
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); INSTALL.prompt = e; renderInstallRail(); if (UI.view === "settings") render(true); });
+window.addEventListener("appinstalled", () => { INSTALL.prompt = null; INSTALL.installed = true; renderInstallRail(); });
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !window.Capacitor && !/claude\.ai|claudeusercontent/.test(location.hostname)) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+
 function viewSettings(){
   const th = S.theme;
-  return `<h1 class="page-title">Settings</h1><p class="page-sub">Progress is saved in this browser. Export a backup to move it to another device.</p>
+  return `<h1 class="page-title">Settings</h1><p class="page-sub">Progress is saved on this device. Export a backup to move it to another one.</p>
   <div class="panel">
+    <div class="set-row"><div><h3>Install Sadhya</h3><p>${installHelp()}</p></div>${INSTALL.prompt ? `<button class="btn primary" id="installBtn">${ic("download")}Install app</button>` : INSTALL.installed ? `<span class="pill ok">${ic("heart")}Installed</span>` : ""}</div>
     <div class="set-row"><div><h3>Theme</h3><p>Follows your device unless you pick one.</p></div>
       <div class="seg">${[["system","monitor","Auto"],["light","sun","Light"],["dark","moon","Dark"]].map(([v,i,l]) => `<button data-theme-set="${v}" aria-pressed="${th === v}">${ic(i)}${l}</button>`).join("")}</div></div>
     <div class="set-row"><div><h3>Treat today as</h3><p>Pick a different date to preview how carry-over looks. Clear it to use the real date.</p></div>
       <div style="display:flex;gap:8px;align-items:center"><label class="field">${ic("calendar")}<input type="date" id="todayInput" value="${S.today}" min="2026-10-01" max="2026-11-15" style="width:150px"></label>${S.today ? '<button class="btn" id="todayClear">Use real date</button>' : ""}</div></div>
     <div class="set-row"><div><h3>Back up progress</h3><p>Download a small file with every ticked task.</p></div><button class="btn primary" id="exportBtn">${ic("download")}Export</button></div>
-    <div class="set-row"><div><h3>Restore progress</h3><p>Load a backup file. This replaces what is saved here.</p></div><button class="btn" id="importBtn">${ic("upload")}Import</button></div>
+    <div class="set-row"><div><h3>Restore progress</h3><p>Load a backup file, or paste backup text. This replaces what is saved here.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="importBtn">${ic("upload")}Import file</button><button class="btn" id="pasteBtn">${ic("file")}Paste</button></div></div>
     <div class="set-row"><div><h3>Clear all ticks</h3><p>Start the plan fresh. Export first if you might want it back.</p></div><button class="btn danger" id="resetBtn">${ic("reset")}Clear progress</button></div>
   </div>`;
 }
 
 /* ---------- render + events ---------- */
 function render(keepScroll){
-  applyTheme(); renderNav();
+  applyTheme(); renderNav(); renderInstallRail();
   const y = window.scrollY;
   const m = document.getElementById("main");
   m.innerHTML = UI.view === "day" ? viewDay() : UI.view === "plan" ? viewPlan() : UI.view === "insights" ? viewInsights() : viewSettings();
@@ -706,7 +748,7 @@ document.addEventListener("change", e => {
   if (el.id === "todayInput") { S.today = el.value; save(); UI.date = DATES.includes(today()) ? today() : UI.date; render(true); toast(el.value ? `Previewing as ${short(el.value)}` : "Using the real date", "calendar"); }
   if (el.id === "importFile" && el.files[0]) {
     el.files[0].text().then(txt => { const d = JSON.parse(txt); if (!d.done) throw 0; S = {...S, done:d.done}; save(); render(); toast("Progress restored"); })
-      .catch(() => toast("That file isn't a Placement Pipeline backup", "alert"));
+      .catch(() => toast("That file isn't a Sadhya backup", "alert"));
     el.value = "";
   }
 });
@@ -733,14 +775,28 @@ document.addEventListener("click", e => {
   if (b.dataset.themeSet) { S.theme = b.dataset.themeSet; save(); render(true); return; }
   if (b.id === "todayClear") { S.today = ""; save(); UI.date = DATES.includes(today()) ? today() : UI.date; render(true); toast("Using the real date", "calendar"); return; }
   if (b.id === "exportBtn") {
-    const blob = new Blob([JSON.stringify({app:"placement-pipeline", exported:new Date().toISOString(), done:S.done}, null, 1)], {type:"application/json"});
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `placement-progress-${iso(new Date())}.json`; document.body.appendChild(a); a.click(); a.remove();
+    const json = JSON.stringify({app:"sadhya", exported:new Date().toISOString(), done:S.done}, null, 1);
+    if (window.Capacitor) {
+      navigator.clipboard.writeText(json).then(() => toast("Backup copied. Paste it into a note or chat to keep it", "download"))
+        .catch(() => { prompt("Copy this backup and keep it somewhere safe:", json); });
+      return;
+    }
+    const blob = new Blob([json], {type:"application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `sadhya-progress-${iso(new Date())}.json`; document.body.appendChild(a); a.click(); a.remove();
     toast("Backup downloaded", "download"); return;
+  }
+  if (b.id === "installBtn" || b.id === "installRail") { doInstall(); return; }
+  if (b.id === "pasteBtn") {
+    const txt = prompt("Paste your Sadhya backup text:"); if (!txt) return;
+    try { const d = JSON.parse(txt); if (!d.done) throw 0; S = {...S, done:d.done}; save(); render(); toast("Progress restored"); }
+    catch(e){ toast("That text isn't a Sadhya backup", "alert"); }
+    return;
   }
   if (b.id === "importBtn") { document.getElementById("importFile").click(); return; }
   if (b.id === "resetBtn") { if (confirm("Clear every ticked task? This can't be undone.")) { S.done = {}; save(); render(); toast("Progress cleared", "reset"); } return; }
 });
 
+const hv = location.hash.slice(1); if (["day","plan","insights","settings"].includes(hv)) UI.view = hv;
 // open today's unfinished cards by default
 topicsOn(UI.date).forEach(t => { if (!isComplete(t)) UI.open.add(t.id); });
 lateTopics().forEach(t => UI.open.add(t.id));
