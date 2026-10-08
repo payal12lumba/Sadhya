@@ -23,11 +23,11 @@ Every task comes from the plan's **Sufficient resource** columns. Add-on resourc
 2. On the empty repo page, click **uploading an existing file**.
 3. Drag in everything from this folder, including the hidden `.github` folder, and click **Commit changes**.
 
-Your file picker may hide folders that start with a dot. If `.github` doesn't upload, create the workflow by hand:
+Your file picker may hide folders that start with a dot, so `.github` often doesn't upload. Check the repo for a `.github` folder. If it's missing:
 
 1. In the repo, click **Add file → Create new file**.
-2. Name it `.github/workflows/build-apk.yml`.
-3. Paste in the contents of that file from this folder and commit.
+2. Type the name exactly as `.github/workflows/build-apk.yml` (the slashes create the folders).
+3. Open `COPY-ME-build-apk.yml` from this folder, copy everything in it, paste it in, and click **Commit changes**.
 
 **Or with git**
 
@@ -47,7 +47,9 @@ Every push to `main` builds the app automatically.
 
 1. Open the repo's **Actions** tab and wait for **Build Sadhya APK** to turn green. It takes about 5–8 minutes.
 2. Open **Releases** on the right side of the repo page and download `Sadhya.apk` from the newest release.
-3. On your phone, open the downloaded file. If asked, allow installs from your browser or file manager, then tap **Install**.
+3. On your phone, open the downloaded file. If asked, allow installs from your browser or file manager, then tap **Install**. If Play Protect warns that the app is unrecognised, tap **More details → Install anyway**. It warns because the app isn't from the Play Store.
+
+If there's no release, open the green run in **Actions**, scroll to **Artifacts** at the bottom, and download **Sadhya-apk**. It's a zip with `Sadhya.apk` inside.
 
 Sadhya then appears in your app drawer with the pink heart icon. It opens full screen, with no browser bar, and works offline.
 
@@ -95,7 +97,8 @@ Ticks are linked to each topic's `#` number and the order of its tasks. Moving a
 | `manifest.webmanifest` | App name, colours and icons for installing |
 | `sw.js` | Lets the app open offline and be installed |
 | `icons/` | App icons (home screen, maskable, Apple, favicon) |
-| `assets/` | Source images for the Android icon and splash screen |
+| `android-res/` | Ready-made Android launcher icons and splash screen |
+| `COPY-ME-build-apk.yml` | Visible copy of the build workflow, for pasting in if `.github` didn't upload |
 | `.github/workflows/build-apk.yml` | Builds `Sadhya.apk` on GitHub and publishes it as a release |
 | `package.json`, `capacitor.config.json` | Android app wrapper settings (app id `com.payal.sadhya`) |
 | `android-signing/sadhya.keystore` | Fixed signing key so updates install over the old app |
