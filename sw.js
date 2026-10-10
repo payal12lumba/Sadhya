@@ -1,6 +1,6 @@
 // Sadhya service worker: makes the app open offline and installable.
 // Bump VERSION whenever index.html changes so phones pick up the new build.
-const VERSION = "sadhya-v1";
+const VERSION = "sadhya-v2";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png",
   "icons/maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-64.png", "icons/icon.svg"];
 
